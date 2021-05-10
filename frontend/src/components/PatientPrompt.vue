@@ -70,7 +70,7 @@ export default {
     rules: {
       required: (value) => !!value || "Required.",
       name: (value) => /^[A-Z][a-z]+\s[A-Z][a-z]+$/.test(value) || "Must be a valid name.",
-      dob: (value) => /^\d\d-\d\d-\d\d\d\d$/.test(value) || "Must be a valid date(dd-MM-yyyy)",
+      dob: (value) => /^\d\d\d\d-\d\d-\d\d$/.test(value) || "Must be a valid date(yyyy-MM-dd)",
       idCard: (value) => /^[A-Z][A-Z]\d{6}$/.test(value) || "Must be a valid ID card",
       cnp: (value) => /^\d{13}$/.test(value) || "Must be a valid Personal Numeric Code",
     },

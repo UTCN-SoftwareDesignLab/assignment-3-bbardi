@@ -79,6 +79,7 @@ public class ConsultationServiceTest {
         Consultation consultation = (Consultation) TestCreationFactory.listOf(Consultation.class).get(0);
         consultation.setDoctor(user);
         consultation.setPatient(patient);
+        TimeSlot timeSlot = consultation.getTime();
         ConsultationDTO consultationDTO = ConsultationDTO.builder()
                 .id(consultation.getId())
                 .patientName(consultation.getPatient().getName())
@@ -90,8 +91,9 @@ public class ConsultationServiceTest {
         when(consultationMapper.toDTO(consultation)).thenReturn(consultationDTO);
         when(userRepository.findUserByFullName(consultationDTO.getDoctorName())).thenReturn(Optional.of(user));
         when(patientRepository.findPatientByName(consultationDTO.getPatientName())).thenReturn(Optional.of(patient));
-        when(timeSlotRepository.findOne(TimeSlotSpecification.timeSlotLike(any()))).thenReturn(Optional.of(new TimeSlot(randomLong(),consultationDTO.getTime())));
+        when(timeSlotRepository.findOne(TimeSlotSpecification.timeSlotLike(any()))).thenReturn(Optional.of(timeSlot));
         when(consultationRepository.save(any())).thenReturn(consultation);
+        when(timeSlotRepository.findAll(TimeSlotSpecification.freeTimeSlots(user,any()))).thenReturn(List.of(timeSlot));
         Assertions.assertEquals(consultationService.create(consultationDTO), consultationDTO);
     }
 

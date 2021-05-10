@@ -54,6 +54,9 @@ public class ConsultationService {
                 .orElseThrow(()->new EntityNotFoundException("Patient not found"));
         TimeSlot timeSlot = timeSlotRepository.findOne(TimeSlotSpecification.timeSlotLike(consultation.getTime()))
                 .orElseThrow(()->new EntityNotFoundException("Timeslot not found"));
+        List<TimeSlot> freeTimeSlots = timeSlotRepository.findAll(TimeSlotSpecification.freeTimeSlots(doctor,actConsult.getDate()));
+        if(freeTimeSlots.stream().noneMatch(e -> e.equals(timeSlot)))
+            throw new EntityNotFoundException("Timeslot is not free");
         actConsult.setDoctor(doctor);
         actConsult.setPatient(patient);
         actConsult.setTime(timeSlot);
@@ -75,10 +78,19 @@ public class ConsultationService {
                 .orElseThrow(()->new EntityNotFoundException("Patient not found"));
         TimeSlot timeSlot = timeSlotRepository.findOne(TimeSlotSpecification.timeSlotLike(consultation.getTime()))
                 .orElseThrow(()->new EntityNotFoundException("Timeslot not found"));
+        if(!actConsult.getDoctor().equals(doctor)||
+                !actConsult.getDate().isEqual(mappedConsult.getDate())||
+                !actConsult.getTime().equals(timeSlot))
+        {
+            actConsult.setDoctor(doctor);
+            actConsult.setDate(mappedConsult.getDate());
+            actConsult.setTime(timeSlot);
+            List<TimeSlot> freeTimeSlots = timeSlotRepository.findAll(TimeSlotSpecification.freeTimeSlots(actConsult.getDoctor(),actConsult.getDate()));
+            if(freeTimeSlots.stream().noneMatch(e -> e.equals(timeSlot)))
+                throw new EntityNotFoundException("Timeslot is not free");
+        }
         actConsult.setDescription(consultation.getDescription());
-        actConsult.setDoctor(doctor);
         actConsult.setPatient(patient);
-        actConsult.setTime(timeSlot);
         return consultationMapper.toDTO(consultationRepository.save(actConsult));
     }
 
